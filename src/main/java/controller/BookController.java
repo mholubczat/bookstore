@@ -1,33 +1,40 @@
 package controller;
-public class BookController {
-/*
-package controller;
 
-import fi.iki.elonen.NanoHTTPD;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import models.Book;
+import storage.BookStorage;
 
 import java.util.List;
 import java.util.Map;
 
+import static fi.iki.elonen.NanoHTTPD.*;
+import static fi.iki.elonen.NanoHTTPD.Response.Status.*;
+
 public class BookController {
+
     private final static String BOOK_ID_PARAM_NAME = "book_id";
 
-    private BookStorage bookStorage = new PostgresListBookStorageImpl();
 
-    public NanoHTTPD.Response serveGetBookRequest(NanoHTTPD.IHTTPSession session) {
+    private BookStorage bookStorage = new BookStorage();
+
+    public Response serveGetBookRequest(IHTTPSession session) {
 
         Map<String, List<String>> requestParameters = session.getParameters();
         if (requestParameters.containsKey(BOOK_ID_PARAM_NAME)) {
             List<String> bookIdParams = requestParameters.get(BOOK_ID_PARAM_NAME);
             String bookIdParam = bookIdParams.get(0);
-            long bookId = 0;
+
             try {
-                bookId = Long.parseLong(bookIdParam);
+               long bookId = Long.parseLong(bookIdParam);
 
             } catch (NumberFormatException nfe) {
                 System.err.println("Error during convert request param: \n" + nfe);
                 return newFixedLengthResponse(BAD_REQUEST, "text/plain", "Request param 'bookId' have to be number");
             }
-            System.out.println(bookId);
+
+            long bookId = 0;
             Book book = bookStorage.getBook(bookId);
             if (book != null) {
                 try {
@@ -67,11 +74,10 @@ public class BookController {
         int contentLength = Integer.parseInt(lengthHeader);
         byte[] buffer = new byte[contentLength];
         try {
-            System.out.println(1);
+
             session.getInputStream().read(buffer, 0, contentLength);
-            System.out.println(2);
+
             String requestBody = new String(buffer).trim();
-/// nastepna linia powoduje walek
             Book requestBook = objectMapper.readValue(requestBody, Book.class);
 
             requestBook.setId(randomBookId);
@@ -82,12 +88,6 @@ public class BookController {
             System.err.println("Error during process request: \n" + e);
             return newFixedLengthResponse(INTERNAL_ERROR, "text/plain", "Internal error: book hasn't been added");
         }
-
         return newFixedLengthResponse(OK, "application/json", "Book added ");
-
-
     }
-
-}
-*/
 }
