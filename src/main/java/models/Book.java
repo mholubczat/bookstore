@@ -8,11 +8,11 @@ public class Book {
     private Integer yearPublished;
     private String publishingHouse;
 
-    public long getId() {
+    public long getBookId() {
         return bookId;
     }
 
-    public void setId(long bookId) {
+    public void setBookId(long bookId) {
         this.bookId = bookId;
     }
 

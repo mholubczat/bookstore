@@ -98,7 +98,7 @@ public class BookStorage {
             while (resultSet.next()) {
                 Book book = new Book();
                 book.setAuthor(resultSet.getString("author"));
-                book.setId(resultSet.getLong("book_id"));
+                book.setBookId(resultSet.getLong("book_id"));
                 book.setPublishingHouse(resultSet.getString("publishing_house"));
                 book.setYearPublished(resultSet.getInt("year_published"));
                 book.setPagesSum(resultSet.getInt("pages_sum"));
@@ -127,7 +127,7 @@ public class BookStorage {
             ResultSet resultSet = statement.executeQuery(sqlGetAllBook);
             while (resultSet.next()) {
                 Book book = new Book();
-                book.setId(resultSet.getLong("book_id"));
+                book.setBookId(resultSet.getLong("book_id"));
                 book.setTitle(resultSet.getString("title"));
                 book.setAuthor(resultSet.getString("author"));
                 book.setPagesSum(resultSet.getInt("pages_sum"));
