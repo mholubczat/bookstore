@@ -3,6 +3,7 @@ package app;
 
 import controller.BookController;
 import controller.CustomerController;
+import controller.OrderController;
 import fi.iki.elonen.NanoHTTPD;
 import models.Customer;
 
@@ -17,9 +18,12 @@ public class RequestUrlMapper {
     private static final String ADD_CUSTOMER_URL = "/customers/add";
     private static final String GET_CUSTOMER_URL = "/customers/get";
     private static final String GET_ALL_CUSTOMERS_URL = "/customers/getAll";
+    private static final String ADD_ORDER_URL = "/orders/add";
+    private static final String GET_ORDER_URL = "/orders/get";
+    private static final String GET_ALL_ORDERS_URL = "/orders/getAll";
     private BookController bookController = new BookController();
     private CustomerController customerController = new CustomerController();
-
+    private OrderController orderController = new OrderController();
     public NanoHTTPD.Response delegateRequest(NanoHTTPD.IHTTPSession session) {
         if (GET.equals(session.getMethod()) && GET_BOOK_URL.equals(session.getUri())) {
             return bookController.serveGetBookRequest(session);
@@ -33,9 +37,14 @@ public class RequestUrlMapper {
             return customerController.serveGetCustomersRequest(session);
         } else if (POST.equals(session.getMethod()) && ADD_CUSTOMER_URL.equals(session.getUri())) {
             return customerController.serveAddCustomerRequest(session);
-
+        }else if (GET.equals(session.getMethod()) && GET_ORDER_URL.equals(session.getUri())) {
+            return orderController.serveGetOrderRequest(session);
+        } else if (GET.equals(session.getMethod()) && GET_ALL_ORDERS_URL.equals(session.getUri())) {
+            return orderController.serveGetOrdersRequest(session);
+        } else if (POST.equals(session.getMethod()) && ADD_ORDER_URL.equals(session.getUri())) {
+            return orderController.serveAddOrderRequest(session);
         }
         return NanoHTTPD.newFixedLengthResponse(NOT_FOUND, "text/plain", "Not Found");
-    }
 
-}
+
+}}

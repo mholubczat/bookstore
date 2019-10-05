@@ -1,14 +1,15 @@
 package models;
 
+import java.sql.Array;
 import java.util.ArrayList;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 public class Order {
     private long orderId;
     private Customer customer;
     private Date orderDate;
-    private List<OrderItem> orderItems;
+    private ArrayList<OrderItem> orderItems;
 
     public long getOrderId() {
         return orderId;
@@ -38,7 +39,7 @@ public class Order {
         return orderItems;
     }
 
-    public void setOrderItems(List<OrderItem> orderItems) {
+    public void setOrderItems(ArrayList<OrderItem> orderItems) {
         this.orderItems = orderItems;
     }
 }

@@ -4,7 +4,7 @@ package controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.Book;
-import storage.BookStorage;
+import storage.Database;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,7 @@ public class BookController {
     private final static String BOOK_ID_PARAM_NAME = "book_id";
 
 
-    private BookStorage bookStorage = new BookStorage();
+    private Database bookStorage = new Database();
 
     public Response serveGetBookRequest(IHTTPSession session) {
 

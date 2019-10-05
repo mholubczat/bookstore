@@ -3,7 +3,15 @@ package models;
 public class OrderItem {
     private Order order;
     private Book book;
-    private int amount;
+    private int quantity;
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 
     public Order getOrder() {
         return order;
@@ -21,11 +29,4 @@ public class OrderItem {
         this.book = book;
     }
 
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
 }
