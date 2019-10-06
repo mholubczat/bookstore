@@ -34,7 +34,7 @@ public class BookController {
                 return newFixedLengthResponse(BAD_REQUEST, "text/plain", "Request param 'bookId' have to be number");
             }
 
-            Book book = bookStorage.getBook(bookId);
+            Book book = bookStorage.getBookFromDB(bookId);
             if (book != null) {
                 try {
                     ObjectMapper objectMapper = new ObjectMapper();

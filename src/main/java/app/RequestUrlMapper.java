@@ -19,6 +19,7 @@ public class RequestUrlMapper {
     private static final String GET_CUSTOMER_URL = "/customers/get";
     private static final String GET_ALL_CUSTOMERS_URL = "/customers/getAll";
     private static final String ADD_ORDER_URL = "/orders/add";
+    private static final String ADD_ORDER_ITEM_URL = "/orderitems/add";
     private static final String GET_ORDER_URL = "/orders/get";
     private static final String GET_ALL_ORDERS_URL = "/orders/getAll";
     private BookController bookController = new BookController();
@@ -43,6 +44,8 @@ public class RequestUrlMapper {
             return orderController.serveGetOrdersRequest(session);
         } else if (POST.equals(session.getMethod()) && ADD_ORDER_URL.equals(session.getUri())) {
             return orderController.serveAddOrderRequest(session);
+        } else if (POST.equals(session.getMethod()) && ADD_ORDER_ITEM_URL.equals(session.getUri())) {
+            return orderController.serveAddOrderItemRequest(session);
         }
         return NanoHTTPD.newFixedLengthResponse(NOT_FOUND, "text/plain", "Not Found");
 

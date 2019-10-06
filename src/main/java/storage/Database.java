@@ -25,6 +25,7 @@ public class Database {
         }
         //createDatabase();
     }
+
     private static Connection initializeDataBaseConnection() {
         try {
             return DriverManager.getConnection(POSTGRES_JDBC_URL, POSTGRES_USER_NAME, POSTGRES_USER_PASS);
@@ -49,7 +50,7 @@ public class Database {
     }
 
 
-    public static void createDatabase(){
+    public static void createDatabase() {
 
         final String sqlCreateBookDatabase = "CREATE DATABASE bookstore" +
                 " WITH OWNER = postgres " +
@@ -83,8 +84,7 @@ public class Database {
     }
 
 
-
-    public Book getBook(long id) {
+    public Book getBookFromDB(long id) {
         final String sqlSelectBook = "SELECT * FROM books WHERE book_id = ?;";
 
 
@@ -179,6 +179,7 @@ public class Database {
         }
 
     }
+
     public Customer getCustomer(long customerId) {
         final String sqlSelectCustomer = "SELECT * FROM customers WHERE customer_id = ?;";
 
@@ -268,51 +269,58 @@ public class Database {
 
     public Order getOrder(long orderId) {
         final String sqlSelectOrder = "SELECT * FROM orders WHERE order_id = ?;";
-
+        final String sqlGetOrderItems = "SELECT*FROM order_items WHERE order_id = ?";
 
         Connection connection = initializeDataBaseConnection();
-        PreparedStatement preparedStatement = null;
-
+        PreparedStatement preparedStatementOrder = null;
+        PreparedStatement preparedStatementItems = null;
         try {
 
-            preparedStatement = connection.prepareStatement(sqlSelectOrder);
-            preparedStatement.setLong(1, orderId);
+            preparedStatementOrder = connection.prepareStatement(sqlSelectOrder);
+            preparedStatementOrder.setLong(1, orderId);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            ResultSet resultSet = preparedStatementOrder.executeQuery();
             while (resultSet.next()) {
                 Order order = new Order();
                 order.setOrderId(orderId);
                 order.setOrderDate(resultSet.getDate("order_date"));
                 order.setCustomer(getCustomer(resultSet.getInt("customer_id")));
-                ///TODO add order item list
+                order.setOrderItems(getOrderItems(orderId));
                 return order;
             }
         } catch (SQLException e) {
             System.err.println("Error invoking sql query: \n" + e.getMessage());
             throw new RuntimeException("Error invoking sql query");
         } finally {
-            closeDatabaseResources(connection, preparedStatement);
+            closeDatabaseResources(connection, preparedStatementOrder);
         }
         return null;
     }
 
     public List<Order> getAllOrders() {
-        final String sqlGetAllOrders = "SELECT * FROM orders;";
+        final String sqlGetAllOrders = "SELECT*FROM orders";
+
+
 
         Connection connection = initializeDataBaseConnection();
         Statement statement = null;
+
         List<Order> orders = new ArrayList<>();
 
         try {
             statement = connection.createStatement();
+
             ResultSet resultSet = statement.executeQuery(sqlGetAllOrders);
             while (resultSet.next()) {
                 Order order = new Order();
                 order.setOrderId(resultSet.getLong("order_id"));
+
                 order.setCustomer(getCustomer(resultSet.getLong("customer_id")));
                 order.setOrderDate(resultSet.getDate("order_date"));
-                ///TODO add order item list
 
+
+
+                order.setOrderItems(getOrderItems(resultSet.getLong("order_id")));
                 orders.add(order);
             }
 
@@ -322,36 +330,25 @@ public class Database {
         } finally {
             closeDatabaseResources(connection, statement);
         }
-
-
         return orders;
     }
+
     public void addOrder(Order order) {
         final String sqlInsertOrder = "INSERT INTO orders " +
                 "(customer_id, order_date)" +
                 "VALUES (?,?);";
-        final String sqlInsertOrderItems = "INSERT INTO order_items " +
-                "(order_id, book_id, quantity)" +
-                "VALUES (?,?,?);";
+
 
         Connection connection = initializeDataBaseConnection();
         PreparedStatement preparedStatementOrder = null;
-        PreparedStatement preparedStatementOrderItems = null;
+
 
         try {
             preparedStatementOrder = connection.prepareStatement(sqlInsertOrder);
-            preparedStatementOrderItems = connection.prepareStatement(sqlInsertOrderItems);
             //System.out.println(preparedStatement.getMetaData());
             preparedStatementOrder.setLong(1, order.getCustomer().getCustomerId());
             preparedStatementOrder.setDate(2, order.getOrderDate());
             preparedStatementOrder.executeUpdate();
-         /*   for (OrderItem orderItem:order.getOrderItems()){
-            preparedStatementOrderItems.setLong(1, order.getOrderId());
-            preparedStatementOrderItems.setLong(2, orderItem.getBook().getBookId());
-            preparedStatementOrderItems.setInt(3, orderItem.getQuantity());
-            preparedStatementOrderItems.executeUpdate();
-            }*/
-
 
 
         } catch (SQLException e) {
@@ -359,9 +356,59 @@ public class Database {
             throw new RuntimeException("Error invoking sql query");
         } finally {
             closeDatabaseResources(connection, preparedStatementOrder);
+
+        }
+    }
+
+    public void addOrderItem(long orderId, OrderItem orderItem) {
+
+        final String sqlInsertOrderItems = "INSERT INTO order_items " +
+                "(order_id, book_id, quantity)" +
+                "VALUES (?,?,?);";
+
+        Connection connection = initializeDataBaseConnection();
+
+        PreparedStatement preparedStatementOrderItems = null;
+
+        try {
+
+            preparedStatementOrderItems = connection.prepareStatement(sqlInsertOrderItems);
+            preparedStatementOrderItems.setLong(1, orderId);
+            preparedStatementOrderItems.setLong(2, orderItem.getBook().getBookId());
+            preparedStatementOrderItems.setInt(3, orderItem.getQuantity());
+            preparedStatementOrderItems.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error invoking sql query: \n" + e.getMessage());
+            throw new RuntimeException("Error invoking sql query");
+        } finally {
+
             closeDatabaseResources(connection, preparedStatementOrderItems);
         }
 
     }
+    public ArrayList<OrderItem> getOrderItems(long order_id) {
+        final String sqlGetOrderItems = "SELECT*FROM order_items WHERE order_id = ?";
+        Connection connection = initializeDataBaseConnection();
+        PreparedStatement preparedStatement = null;
+        ArrayList<OrderItem> orderItems = new ArrayList<>();
+        try {
+            preparedStatement = connection.prepareStatement(sqlGetOrderItems);
+                preparedStatement.setLong(1, order_id);
 
+                ResultSet orderItemSet = preparedStatement.executeQuery();
+                while (orderItemSet.next()) {
+                    OrderItem item = new OrderItem();
+                    item.setOrderItemId(orderItemSet.getLong("order_item_id"));
+                    item.setQuantity(orderItemSet.getInt("quantity"));
+                    item.setBook(getBookFromDB(orderItemSet.getLong("book_id")));
+                    orderItems.add(item);
+                }
+        } catch (SQLException e) {
+            System.err.println("Error invoking sql query: \n" + e.getMessage());
+            throw new RuntimeException("Error invoking sql query");
+        } finally {
+            closeDatabaseResources(connection, preparedStatement);
+        }
+        return orderItems;
+    }
 }

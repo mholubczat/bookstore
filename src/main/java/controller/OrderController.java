@@ -4,6 +4,7 @@ package controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.Order;
+import models.OrderItem;
 import storage.Database;
 
 import java.util.List;
@@ -90,4 +91,44 @@ public class OrderController {
         }
         return newFixedLengthResponse(OK, "application/json", "Order added ");
     }
+
+    public Response serveAddOrderItemRequest(IHTTPSession session) {
+        Map<String, List<String>> requestParameters = session.getParameters();
+        if(requestParameters.containsKey(ORDER_ID_PARAM_NAME)) {
+            List<String> orderIdParams = requestParameters.get(ORDER_ID_PARAM_NAME);
+            String orderIdParam = orderIdParams.get(0);
+
+        long orderId;
+        try {
+            orderId = Long.parseLong(orderIdParam);
+
+        } catch (NumberFormatException nfe) {
+            System.err.println("Error during convert request param: \n" + nfe);
+            return newFixedLengthResponse(BAD_REQUEST, "text/plain", "Request param 'orderId' have to be number");
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        long randomOrderItemId = System.currentTimeMillis();
+        String lengthHeader = session.getHeaders().get("content-length");
+
+        int contentLength = Integer.parseInt(lengthHeader);
+        byte[] buffer = new byte[contentLength];
+        try {
+
+            session.getInputStream().read(buffer, 0, contentLength);
+
+            String requestBody = new String(buffer).trim();
+            OrderItem requestOrder = objectMapper.readValue(requestBody, OrderItem.class);
+
+            requestOrder.setOrderItemId(randomOrderItemId);
+
+            database.addOrderItem(orderId,requestOrder);
+
+        } catch (Exception e) {
+            System.err.println("Error during process request: \n" + e);
+            return newFixedLengthResponse(INTERNAL_ERROR, "text/plain", "Internal error: order hasn't been added");
+        }
+        return newFixedLengthResponse(OK, "application/json", "Order added ");
+    }return newFixedLengthResponse(BAD_REQUEST, "text/plain", "Uncorrected request params");
+    }
+
 }

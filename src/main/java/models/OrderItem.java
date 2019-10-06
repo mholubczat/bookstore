@@ -1,7 +1,16 @@
 package models;
 
 public class OrderItem {
-    private Order order;
+    public long getOrderItemId() {
+        return orderItemId;
+    }
+
+    public void setOrderItemId(long orderItemId) {
+        this.orderItemId = orderItemId;
+    }
+
+    private long orderItemId;
+
     private Book book;
     private int quantity;
 
@@ -13,13 +22,7 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public Order getOrder() {
-        return order;
-    }
 
-    public void setOrder(Order order) {
-        this.order = order;
-    }
 
     public Book getBook() {
         return book;
